@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    overflow: hidden;
+}
+
+
+
+
+body.print-mode .no-print {
+    display: none !important;
+}
+
+@media screen {
+    .only-pdf {
+        display: none;
+    }
+}
+
+@media print {
+    .only-pdf {
+        display: block;
+    }
+}
+
+/* PDF */
+.funcionario h2 {
+    text-align: left !important;
+}
+
+
+
+.totais {
+    display: flex;
+    justify-content: flex-start;
+    margin: 20px;
+
+}
+
+.totais span {
+    font-size: 14px;
+    font-style: italic;
+    margin-right: 12px;
+
+}
+
+.credito {
+    color: blue;
+}
+
+.debito {
+    color: orangered;
+}
+
+.falta {
+    color: red;
+}
+
+.saldo {
+    color: green;
+}

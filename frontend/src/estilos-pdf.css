@@ -1,0 +1,45 @@
+body {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #111827;
+    /* mesma cor usada pelo Tailwind */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+th,
+td {
+    padding: 4px 6px;
+    border: 1px solid #00000030;
+    /* borda fina e mais escura */
+    vertical-align: middle;
+    text-align: center;
+}
+
+.cabecalho-pdf {
+    font-size: 12px;
+    line-height: 1.2;
+    text-align: center;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.nome-funcionario {
+    font-weight: 600;
+    font-size: 13px;
+    margin: 0;
+    padding: 6px 0 4px 0;
+    text-align: left;
+}
+
+/* .text-xs {
+    font-size: 11px;
+}
+
+.leading-tight {
+    line-height: 1.2;
+} */
