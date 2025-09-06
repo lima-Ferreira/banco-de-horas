@@ -22,12 +22,10 @@ export function useApi() {
       // Garantir que endpoint comece com '/'
       const url = `${API_URL}${
         endpoint.startsWith("/") ? endpoint : "/" + endpoint
-      }`;
-
+      }`.trim();
       const res = await fetch(url, {
         ...options,
         headers: { ...defaultHeaders, ...(options.headers || {}) },
-        credentials: "include", // importante para cookies/sessões
       });
 
       if (!res.ok) {
