@@ -3,11 +3,10 @@ import { useState } from "react";
 export function useApi() {
   const [loading, setLoading] = useState(false);
 
-  const API_URL = import.meta.env.VITE_API_URL; // vem do .env
+  // URL base da API, vem do .env
+  const API_URL = import.meta.env.VITE_API_URL;
 
-  const getToken = () => {
-    return localStorage.getItem("token");
-  };
+  const getToken = () => localStorage.getItem("token");
 
   const request = async (endpoint, options = {}) => {
     setLoading(true);
@@ -20,9 +19,15 @@ export function useApi() {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       };
 
-      const res = await fetch(`${API_URL}${endpoint}`, {
+      // Garantir que endpoint comece com '/'
+      const url = `${API_URL}${
+        endpoint.startsWith("/") ? endpoint : "/" + endpoint
+      }`;
+
+      const res = await fetch(url, {
         ...options,
         headers: { ...defaultHeaders, ...(options.headers || {}) },
+        credentials: "include", // importante para cookies/sessões
       });
 
       if (!res.ok) {
@@ -33,8 +38,11 @@ export function useApi() {
       try {
         return await res.json();
       } catch {
-        return null;
+        return null; // caso não retorne JSON
       }
+    } catch (err) {
+      console.error("Erro na requisição:", err);
+      throw err;
     } finally {
       setLoading(false);
     }

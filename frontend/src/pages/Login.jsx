@@ -1,11 +1,11 @@
 import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useApi } from "../hooks/useApi"; // <-- adicionei o useApi
+import { useApi } from "../hooks/useApi";
 
 function Login() {
   const { login } = useContext(AuthContext);
-  const { request, loading } = useApi(); // <-- obtém request e loading
+  const { request, loading } = useApi();
   const [nome, setNome] = useState("");
   const [senha, setSenha] = useState("");
   const [mensagem, setMensagem] = useState("");
@@ -16,9 +16,10 @@ function Login() {
     setMensagem("");
 
     try {
-      const data = await request("/auth/login", {
+      // Adicionado /api para combinar com o backend
+      const data = await request("/api/auth/login", {
         method: "POST",
-        credentials: "include",
+        credentials: "include", // essencial para CORS e cookies
         body: JSON.stringify({ nome, senha }),
       });
 
@@ -31,7 +32,7 @@ function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      {loading && ( // <-- aqui mostra o loading
+      {loading && (
         <div className="fixed inset-0 bg-black bg-opacity-20 flex justify-center items-center z-50">
           <div className="bg-white p-4 rounded shadow">Carregando...</div>
         </div>
