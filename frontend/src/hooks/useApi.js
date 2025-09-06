@@ -23,6 +23,7 @@ export function useApi() {
       const url = `${API_URL}${
         endpoint.startsWith("/") ? endpoint : "/" + endpoint
       }`.trim();
+
       const res = await fetch(url, {
         ...options,
         headers: { ...defaultHeaders, ...(options.headers || {}) },

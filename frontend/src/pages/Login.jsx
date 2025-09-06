@@ -19,7 +19,7 @@ function Login() {
       // Adicionado /api para combinar com o backend
       const data = await request("/api/auth/login", {
         method: "POST",
-        credentials: "include", // essencial para CORS e cookies
+        credentials: "include",
         body: JSON.stringify({ nome, senha }),
       });
 
