@@ -19,7 +19,7 @@ function App() {
   return (
     <AuthProvider>
       <LoadingProvider>
-        <BrowserRouter>
+        <BrowserRouter basename="/banco-de-horas">
           {/* overlay fica sempre montado, mas só aparece quando isLoading = true */}
           <LoadingOverlay />
 
