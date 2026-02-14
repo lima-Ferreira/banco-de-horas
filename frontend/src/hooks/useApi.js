@@ -5,6 +5,7 @@ export function useApi() {
 
   // URL base da API, vem do .env
   const API_URL = import.meta.env.VITE_API_URL;
+  console.log("Minha API URL atual é:", API_URL);
 
   const getToken = () => localStorage.getItem("token");
 
