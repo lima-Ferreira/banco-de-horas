@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "react"; // Adicionado useRef
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useApi } from "../hooks/useApi";
 
 function Lancamentos() {
@@ -16,20 +16,17 @@ function Lancamentos() {
   const [observacao, setObservacao] = useState("");
   const [mensagem, setMensagem] = useState("");
 
-  // TRAVA DE SEGURANÇA: impede que o carregar rode 2 vezes seguidas
   const carregandoRef = useRef(false);
 
   const carregarFuncionarios = useCallback(async () => {
-    if (carregandoRef.current) return; // Se já estiver carregando, para aqui
+    if (carregandoRef.current) return;
     carregandoRef.current = true;
-
     try {
-      // TESTE: Se der 404 com "/api/funcionarios", mude de volta para "/funcionarios"
+      // Ajuste aqui entre "/api/funcionarios" ou "/funcionarios" conforme seu teste
       const lista = await request("/api/funcionarios");
       setFuncionarios(lista || []);
     } catch (err) {
-      console.error("Erro ao carregar funcionários:", err);
-      setMensagem("Erro ao carregar lista.");
+      console.error("Erro ao carregar:", err);
     } finally {
       carregandoRef.current = false;
     }
@@ -41,9 +38,9 @@ function Lancamentos() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (loading) return; // Impede cliques duplos
-
+    if (loading) return;
     setMensagem("");
+
     const partes = data.split("-");
     const dataAjustada = new Date(
       parseInt(partes[0]),
@@ -68,7 +65,6 @@ function Lancamentos() {
         method: "POST",
         body: JSON.stringify(novoLancamento),
       });
-
       setMensagem("Lançamento salvo com sucesso!");
       setHoras("");
       setObservacao("");
@@ -78,8 +74,8 @@ function Lancamentos() {
   };
 
   return (
+    /* Ajuste de Container: w-full e p-4 para mobile, max-w-3xl para desktop */
     <div className="w-full max-w-3xl mx-auto bg-white p-4 md:p-6 rounded shadow-md my-2">
-      {/* Loading fixo apenas quando necessário */}
       {loading && (
         <div className="fixed inset-0 bg-black/20 flex justify-center items-center z-50">
           <div className="bg-white p-4 rounded shadow font-bold">
@@ -88,13 +84,13 @@ function Lancamentos() {
         </div>
       )}
 
-      <h2 className="text-xl font-bold mb-4 text-center">
+      <h2 className="text-xl md:text-2xl font-bold mb-4 text-center">
         Lançamento de Horas
       </h2>
 
       {mensagem && (
         <div
-          className={`mb-4 p-3 rounded text-center ${
+          className={`mb-4 p-3 rounded text-center text-sm ${
             mensagem.includes("sucesso")
               ? "bg-green-100 text-green-800"
               : "bg-red-100 text-red-800"
@@ -105,41 +101,47 @@ function Lancamentos() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Campo Funcionário - Aumentado para facilitar o toque no mobile */}
         <div>
-          <label className="block font-medium mb-1">Funcionário</label>
+          <label className="block font-medium mb-1 text-sm md:text-base">
+            Funcionário
+          </label>
           <select
             value={funcionarioId}
             onChange={(e) => setFuncionarioId(e.target.value)}
-            className="w-full border p-2 rounded text-sm capitalize"
+            className="w-full border p-3 md:p-2 rounded text-sm capitalize focus:ring-2 focus:ring-blue-500 outline-none"
             required
           >
             <option value="">Selecione um funcionário</option>
-            {funcionarios.length > 0 &&
-              funcionarios.map((f) => (
-                <option key={f._id} value={f._id}>
-                  {f.nome} - {f.loja}
-                </option>
-              ))}
+            {funcionarios.map((f) => (
+              <option key={f._id} value={f._id}>
+                {f.nome} - {f.loja}
+              </option>
+            ))}
           </select>
         </div>
 
         <div>
-          <label className="block font-medium mb-1">Data</label>
+          <label className="block font-medium mb-1 text-sm md:text-base">
+            Data
+          </label>
           <input
             type="date"
             value={data}
             onChange={(e) => setData(e.target.value)}
-            className="w-full border p-2 rounded"
+            className="w-full border p-3 md:p-2 rounded text-sm"
             required
           />
         </div>
 
         <div>
-          <label className="block font-medium mb-1">Tipo</label>
+          <label className="block font-medium mb-1 text-sm md:text-base">
+            Tipo
+          </label>
           <select
             value={tipo}
             onChange={(e) => setTipo(e.target.value)}
-            className="w-full border p-2 rounded"
+            className="w-full border p-3 md:p-2 rounded text-sm"
             required
           >
             <option>Hora extra</option>
@@ -152,25 +154,30 @@ function Lancamentos() {
         </div>
 
         {tipo === "Hora extra" && (
-          <div className="flex gap-4">
+          /* Grid Responsivo: empilha no mobile, fica lado a lado no desktop */
+          <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <label className="block font-medium mb-1">Operação</label>
+              <label className="block font-medium mb-1 text-sm md:text-base">
+                Operação
+              </label>
               <select
                 value={operacao}
                 onChange={(e) => setOperacao(e.target.value)}
-                className="w-full border p-2 rounded"
+                className="w-full border p-3 md:p-2 rounded text-sm"
               >
                 <option>Crédito</option>
                 <option>Débito</option>
               </select>
             </div>
             <div className="flex-1">
-              <label className="block font-medium mb-1">Horas</label>
+              <label className="block font-medium mb-1 text-sm md:text-base">
+                Horas
+              </label>
               <input
                 type="time"
                 value={horas}
                 onChange={(e) => setHoras(e.target.value)}
-                className="w-full border p-2 rounded"
+                className="w-full border p-3 md:p-2 rounded text-sm"
                 required
               />
             </div>
@@ -178,22 +185,26 @@ function Lancamentos() {
         )}
 
         <div>
-          <label className="block font-medium mb-1">Observação</label>
+          <label className="block font-medium mb-1 text-sm md:text-base">
+            Observação
+          </label>
           <textarea
             value={observacao}
             onChange={(e) => setObservacao(e.target.value)}
-            className="w-full border p-2 rounded"
+            className="w-full border p-3 md:p-2 rounded text-sm"
             rows={3}
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white font-bold p-3 rounded hover:bg-blue-700 disabled:opacity-50"
-        >
-          {loading ? "Enviando..." : "Salvar Lançamento"}
-        </button>
+        <div className="pt-2">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white font-bold py-4 md:py-2 rounded hover:bg-blue-700 active:scale-95 disabled:opacity-50 transition-all shadow-sm"
+          >
+            {loading ? "Salvando..." : "Salvar Lançamento"}
+          </button>
+        </div>
       </form>
     </div>
   );
