@@ -59,153 +59,142 @@ function Lancamentos() {
         body: JSON.stringify(novoLancamento),
       });
 
-      setMensagem("✅ Lançamento salvo com sucesso!");
+      setMensagem("Lançamento salvo com sucesso!");
+      setData(new Date().toISOString().split("T")[0]);
       setHoras("");
+      setTipo("Hora extra");
+      setOperacao("Crédito");
       setObservacao("");
     } catch (err) {
       console.error("Erro:", err);
-      setMensagem(err.message || "❌ Erro ao salvar lançamento.");
+      setMensagem(err.message || "Erro ao salvar lançamento.");
     }
   };
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 p-4 pb-24 md:p-8">
-      <div className="max-w-xl mx-auto space-y-6">
-        {/* Loader Moderno */}
-        {loading && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded-3xl shadow-2xl font-black text-blue-600 animate-bounce">
-              Carregando...
-            </div>
-          </div>
-        )}
+    /* Ajustado: w-full e p-4 para telas pequenas, p-6 em telas maiores */
+    <div className="w-full max-w-3xl mx-auto bg-white p-4 md:p-6 rounded shadow-md my-2">
+      {loading && (
+        <div className="fixed inset-0 bg-black bg-opacity-20 flex justify-center items-center z-50">
+          <div className="bg-white p-4 rounded shadow">Carregando...</div>
+        </div>
+      )}
 
-        {/* Cabeçalho */}
-        <div className="text-center space-y-1 py-4">
-          <h2 className="text-3xl font-black text-slate-800 tracking-tighter">
-            Lançamento de Horas
-          </h2>
-          <div className="h-1.5 w-12 bg-blue-600 rounded-full mx-auto"></div>
+      <h2 className="text-xl md:text-2xl font-bold mb-4 text-center">
+        Lançamento de Horas
+      </h2>
+
+      {mensagem && (
+        <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded text-center text-sm md:text-base">
+          {mensagem}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block font-medium mb-1 text-sm md:text-base">
+            Funcionário
+          </label>
+          <select
+            value={funcionarioId}
+            onChange={(e) => setFuncionarioId(e.target.value)}
+            className="w-full border p-3 md:p-2 rounded text-sm text-gray-700 capitalize focus:ring-2 focus:ring-blue-500 outline-none"
+            required
+          >
+            <option value="">Selecione um funcionário</option>
+            {funcionarios.map((f) => (
+              <option key={f._id} value={f._id}>
+                {f.nome} - {f.loja}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* Mensagem de Feedback */}
-        {mensagem && (
-          <div className="p-4 bg-blue-600 text-white rounded-2xl shadow-xl shadow-blue-100 text-center font-black text-sm animate-pulse">
-            {mensagem}
+        <div>
+          <label className="block font-medium mb-1 text-sm md:text-base">
+            Data
+          </label>
+          <input
+            type="date"
+            value={data}
+            onChange={(e) => setData(e.target.value)}
+            className="w-full border p-3 md:p-2 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1 text-sm md:text-base">
+            Tipo
+          </label>
+          <select
+            value={tipo}
+            onChange={(e) => setTipo(e.target.value)}
+            className="w-full border p-3 md:p-2 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            required
+          >
+            <option>Hora extra</option>
+            <option>Falta justificada</option>
+            <option>Falta injustificada</option>
+            <option>Folga</option>
+            <option>Atestado</option>
+            <option>Suspensão</option>
+          </select>
+        </div>
+
+        {tipo === "Hora extra" && (
+          /* Ajustado: flex-col no mobile para não espremer os campos */
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <label className="block font-medium mb-1 text-sm md:text-base">
+                Operação
+              </label>
+              <select
+                value={operacao}
+                onChange={(e) => setOperacao(e.target.value)}
+                className="w-full border p-3 md:p-2 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+              >
+                <option>Crédito</option>
+                <option>Débito</option>
+              </select>
+            </div>
+
+            <div className="flex-1">
+              <label className="block font-medium mb-1 text-sm md:text-base">
+                Horas
+              </label>
+              <input
+                type="time"
+                value={horas}
+                onChange={(e) => setHoras(e.target.value)}
+                step="60"
+                className="w-full border p-3 md:p-2 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+            </div>
           </div>
         )}
 
-        {/* Card do Formulário */}
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100 space-y-6"
-        >
-          <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-2">
-              Funcionário
-            </label>
-            <select
-              value={funcionarioId}
-              onChange={(e) => setFuncionarioId(e.target.value)}
-              className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500 outline-none appearance-none cursor-pointer"
-              required
-            >
-              <option value="">Selecione um funcionário</option>
-              {funcionarios.map((f) => (
-                <option key={f._id} value={f._id}>
-                  {f.nome.toUpperCase()} - {f.loja.toUpperCase()}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div>
+          <label className="block font-medium mb-1 text-sm md:text-base">
+            Observação
+          </label>
+          <textarea
+            value={observacao}
+            onChange={(e) => setObservacao(e.target.value)}
+            className="w-full border p-3 md:p-2 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            rows={3}
+          />
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-2">
-                Data do Registro
-              </label>
-              <input
-                type="date"
-                value={data}
-                onChange={(e) => setData(e.target.value)}
-                className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-black text-slate-700 focus:ring-2 focus:ring-blue-500 outline-none"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-2">
-                Tipo de Evento
-              </label>
-              <select
-                value={tipo}
-                onChange={(e) => setTipo(e.target.value)}
-                className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-black text-slate-700 focus:ring-2 focus:ring-blue-500 outline-none appearance-none cursor-pointer"
-                required
-              >
-                <option>Hora extra</option>
-                <option>Falta justificada</option>
-                <option>Falta injustificada</option>
-                <option>Folga</option>
-                <option>Atestado</option>
-                <option>Suspensão</option>
-              </select>
-            </div>
-          </div>
-
-          {tipo === "Hora extra" && (
-            <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
-              <div>
-                <label className="block text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] mb-2 ml-2">
-                  Operação
-                </label>
-                <select
-                  value={operacao}
-                  onChange={(e) => setOperacao(e.target.value)}
-                  className="w-full bg-blue-50 border-none p-4 rounded-2xl text-sm font-black text-blue-600 focus:ring-2 focus:ring-blue-500 outline-none appearance-none"
-                >
-                  <option>Crédito</option>
-                  <option>Débito</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] mb-2 ml-2">
-                  Qtd Horas
-                </label>
-                <input
-                  type="time"
-                  value={horas}
-                  onChange={(e) => setHoras(e.target.value)}
-                  className="w-full bg-blue-50 border-none p-4 rounded-2xl text-sm font-black text-blue-600 focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-              </div>
-            </div>
-          )}
-
-          <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-2">
-              Observações / Detalhes
-            </label>
-            <textarea
-              value={observacao}
-              onChange={(e) => setObservacao(e.target.value)}
-              className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-medium text-slate-700 focus:ring-2 focus:ring-blue-500 outline-none resize-none"
-              rows={3}
-              placeholder="Ex: Reforço de inventário..."
-            />
-          </div>
-
-          <div className="pt-4">
-            <button
-              type="submit"
-              className="w-full bg-blue-700 text-white font-black py-5 rounded-[1.8rem] shadow-xl shadow-blue-100 hover:bg-blue-800 active:scale-[0.97] transition-all uppercase tracking-[0.2em] text-[10px]"
-            >
-              Salvar Lançamento
-            </button>
-          </div>
-        </form>
-      </div>
+        <div className="pt-2">
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white font-bold px-6 py-4 md:py-2 rounded hover:bg-blue-700 transition-colors shadow-sm active:scale-[0.98]"
+          >
+            Salvar Lançamento
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
