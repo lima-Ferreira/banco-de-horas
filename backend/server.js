@@ -15,8 +15,8 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
   "http://127.0.0.1:5173",
-  "https://banco-de-horas-frontend.onrender.com", // <-- SUBSTITUA pelo link real do seu site se for diferente
-  "https://banco-de-horas-ps6j.onrender.com", // Adicionando a própria URL da API por segurança
+  "https://lima-ferreira.github.io", // <-- ADICIONE ESTA LINHA AQUI
+  "https://banco-de-horas-ps6j.onrender.com",
 ];
 
 app.use(
