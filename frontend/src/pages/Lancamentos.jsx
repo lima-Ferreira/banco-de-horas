@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useApi } from "../hooks/useApi";
 
 function Lancamentos() {
@@ -16,67 +16,70 @@ function Lancamentos() {
   const [observacao, setObservacao] = useState("");
   const [mensagem, setMensagem] = useState("");
 
-  useEffect(() => {
-    carregarFuncionarios();
-  }, []);
-
-  const carregarFuncionarios = async () => {
+  // Usando useCallback para evitar que a função seja recriada e cause loops no useEffect
+  const carregarFuncionarios = useCallback(async () => {
     try {
-      const data = await request("/funcionarios");
-      setFuncionarios(data);
+      const resposta = await request("/funcionarios"); // Nome alterado para evitar conflito com o estado 'data'
+      setFuncionarios(resposta);
     } catch (err) {
       console.error("Erro ao carregar funcionários:", err);
       setMensagem(err.message || "Erro ao carregar funcionários");
     }
-  };
+  }, [request]);
+
+  useEffect(() => {
+    carregarFuncionarios();
+  }, [carregarFuncionarios]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMensagem("");
 
-    const partes = data.split("-");
-    const dataAjustada = new Date(
-      parseInt(partes[0]),
-      parseInt(partes[1]) - 1,
-      parseInt(partes[2]),
-      12,
-      0,
-      0
-    );
-
-    const novoLancamento = {
-      funcionarioId,
-      data: dataAjustada,
-      horas,
-      tipo,
-      operacao,
-      observacao,
-    };
-
     try {
+      const partes = data.split("-");
+      const dataAjustada = new Date(
+        parseInt(partes[0]),
+        parseInt(partes[1]) - 1,
+        parseInt(partes[2]),
+        12,
+        0,
+        0
+      );
+
+      const novoLancamento = {
+        funcionarioId,
+        data: dataAjustada.toISOString(), // Enviando como String ISO para o Backend
+        horas: tipo === "Hora extra" ? horas : "00:00", // Garante valor se não for hora extra
+        tipo,
+        operacao,
+        observacao,
+      };
+
       await request("/lancamentos", {
         method: "POST",
         body: JSON.stringify(novoLancamento),
       });
 
       setMensagem("Lançamento salvo com sucesso!");
-      setData(new Date().toISOString().split("T")[0]);
+
+      // Resetando campos
+      setFuncionarioId("");
       setHoras("");
-      setTipo("Hora extra");
-      setOperacao("Crédito");
       setObservacao("");
+      // Mantém o tipo e operação padrão se desejar, ou reseta também.
     } catch (err) {
-      console.error("Erro:", err);
+      console.error("Erro ao salvar:", err);
       setMensagem(err.message || "Erro ao salvar lançamento.");
     }
   };
 
   return (
-    /* Ajustado: w-full e p-4 para telas pequenas, p-6 em telas maiores */
     <div className="w-full max-w-3xl mx-auto bg-white p-4 md:p-6 rounded shadow-md my-2">
       {loading && (
         <div className="fixed inset-0 bg-black bg-opacity-20 flex justify-center items-center z-50">
-          <div className="bg-white p-4 rounded shadow">Carregando...</div>
+          <div className="bg-white p-4 rounded shadow font-bold">
+            Carregando...
+          </div>
         </div>
       )}
 
@@ -85,7 +88,13 @@ function Lancamentos() {
       </h2>
 
       {mensagem && (
-        <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded text-center text-sm md:text-base">
+        <div
+          className={`mb-4 p-3 rounded text-center text-sm md:text-base ${
+            mensagem.includes("sucesso")
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
+          }`}
+        >
           {mensagem}
         </div>
       )}
@@ -143,7 +152,6 @@ function Lancamentos() {
         </div>
 
         {tipo === "Hora extra" && (
-          /* Ajustado: flex-col no mobile para não espremer os campos */
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <label className="block font-medium mb-1 text-sm md:text-base">
@@ -167,8 +175,8 @@ function Lancamentos() {
                 type="time"
                 value={horas}
                 onChange={(e) => setHoras(e.target.value)}
-                step="60"
                 className="w-full border p-3 md:p-2 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                required={tipo === "Hora extra"}
               />
             </div>
           </div>
@@ -189,9 +197,12 @@ function Lancamentos() {
         <div className="pt-2">
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white font-bold px-6 py-4 md:py-2 rounded hover:bg-blue-700 transition-colors shadow-sm active:scale-[0.98]"
+            disabled={loading}
+            className={`w-full bg-blue-600 text-white font-bold px-6 py-4 md:py-2 rounded hover:bg-blue-700 transition-colors shadow-sm active:scale-[0.98] ${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
-            Salvar Lançamento
+            {loading ? "Salvando..." : "Salvar Lançamento"}
           </button>
         </div>
       </form>
