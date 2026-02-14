@@ -13,8 +13,8 @@ const app = express();
 // Lista de origens permitidas
 
 const allowedOrigins = [
-  "http://localhost:5174",
-  "http://localhost:4173",
+  "http://localhost:5173", // Adicione exatamente o que aparece no erro do console
+  "http://127.0.0.1:5173",
   "https://lima-ferreira.github.io",
 ];
 
