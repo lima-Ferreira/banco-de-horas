@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react"; // Adicionado useRef
 import { useApi } from "../hooks/useApi";
 
 function Lancamentos() {
@@ -16,14 +16,22 @@ function Lancamentos() {
   const [observacao, setObservacao] = useState("");
   const [mensagem, setMensagem] = useState("");
 
-  // Ajustado para /api/funcionarios para evitar o erro 404
+  // TRAVA DE SEGURANÇA: impede que o carregar rode 2 vezes seguidas
+  const carregandoRef = useRef(false);
+
   const carregarFuncionarios = useCallback(async () => {
+    if (carregandoRef.current) return; // Se já estiver carregando, para aqui
+    carregandoRef.current = true;
+
     try {
+      // TESTE: Se der 404 com "/api/funcionarios", mude de volta para "/funcionarios"
       const lista = await request("/api/funcionarios");
       setFuncionarios(lista || []);
     } catch (err) {
       console.error("Erro ao carregar funcionários:", err);
-      setMensagem("Erro ao carregar lista de funcionários.");
+      setMensagem("Erro ao carregar lista.");
+    } finally {
+      carregandoRef.current = false;
     }
   }, [request]);
 
@@ -33,8 +41,9 @@ function Lancamentos() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMensagem("");
+    if (loading) return; // Impede cliques duplos
 
+    setMensagem("");
     const partes = data.split("-");
     const dataAjustada = new Date(
       parseInt(partes[0]),
@@ -55,7 +64,6 @@ function Lancamentos() {
     };
 
     try {
-      // Ajustado para /api/lancamentos para evitar o erro 404
       await request("/api/lancamentos", {
         method: "POST",
         body: JSON.stringify(novoLancamento),
@@ -65,28 +73,28 @@ function Lancamentos() {
       setHoras("");
       setObservacao("");
     } catch (err) {
-      console.error("Erro:", err);
-      setMensagem(err.message || "Erro ao salvar lançamento.");
+      setMensagem(err.message || "Erro ao salvar.");
     }
   };
 
   return (
     <div className="w-full max-w-3xl mx-auto bg-white p-4 md:p-6 rounded shadow-md my-2">
+      {/* Loading fixo apenas quando necessário */}
       {loading && (
-        <div className="fixed inset-0 bg-black bg-opacity-20 flex justify-center items-center z-50">
+        <div className="fixed inset-0 bg-black/20 flex justify-center items-center z-50">
           <div className="bg-white p-4 rounded shadow font-bold">
-            Carregando...
+            Processando...
           </div>
         </div>
       )}
 
-      <h2 className="text-xl md:text-2xl font-bold mb-4 text-center">
+      <h2 className="text-xl font-bold mb-4 text-center">
         Lançamento de Horas
       </h2>
 
       {mensagem && (
         <div
-          className={`mb-4 p-3 rounded text-center text-sm ${
+          className={`mb-4 p-3 rounded text-center ${
             mensagem.includes("sucesso")
               ? "bg-green-100 text-green-800"
               : "bg-red-100 text-red-800"
@@ -102,15 +110,16 @@ function Lancamentos() {
           <select
             value={funcionarioId}
             onChange={(e) => setFuncionarioId(e.target.value)}
-            className="w-full border p-3 md:p-2 rounded text-sm text-gray-700 capitalize focus:ring-2 focus:ring-blue-500 outline-none"
+            className="w-full border p-2 rounded text-sm capitalize"
             required
           >
             <option value="">Selecione um funcionário</option>
-            {funcionarios.map((f) => (
-              <option key={f._id} value={f._id}>
-                {f.nome} - {f.loja}
-              </option>
-            ))}
+            {funcionarios.length > 0 &&
+              funcionarios.map((f) => (
+                <option key={f._id} value={f._id}>
+                  {f.nome} - {f.loja}
+                </option>
+              ))}
           </select>
         </div>
 
@@ -120,7 +129,7 @@ function Lancamentos() {
             type="date"
             value={data}
             onChange={(e) => setData(e.target.value)}
-            className="w-full border p-3 md:p-2 rounded text-sm outline-none"
+            className="w-full border p-2 rounded"
             required
           />
         </div>
@@ -130,7 +139,7 @@ function Lancamentos() {
           <select
             value={tipo}
             onChange={(e) => setTipo(e.target.value)}
-            className="w-full border p-3 md:p-2 rounded text-sm outline-none"
+            className="w-full border p-2 rounded"
             required
           >
             <option>Hora extra</option>
@@ -143,13 +152,13 @@ function Lancamentos() {
         </div>
 
         {tipo === "Hora extra" && (
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex gap-4">
             <div className="flex-1">
               <label className="block font-medium mb-1">Operação</label>
               <select
                 value={operacao}
                 onChange={(e) => setOperacao(e.target.value)}
-                className="w-full border p-3 md:p-2 rounded text-sm"
+                className="w-full border p-2 rounded"
               >
                 <option>Crédito</option>
                 <option>Débito</option>
@@ -161,8 +170,8 @@ function Lancamentos() {
                 type="time"
                 value={horas}
                 onChange={(e) => setHoras(e.target.value)}
-                className="w-full border p-3 md:p-2 rounded text-sm"
-                required={tipo === "Hora extra"}
+                className="w-full border p-2 rounded"
+                required
               />
             </div>
           </div>
@@ -173,20 +182,18 @@ function Lancamentos() {
           <textarea
             value={observacao}
             onChange={(e) => setObservacao(e.target.value)}
-            className="w-full border p-3 md:p-2 rounded text-sm outline-none"
+            className="w-full border p-2 rounded"
             rows={3}
           />
         </div>
 
-        <div className="pt-2">
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white font-bold px-6 py-3 rounded hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50"
-          >
-            {loading ? "Salvando..." : "Salvar Lançamento"}
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-600 text-white font-bold p-3 rounded hover:bg-blue-700 disabled:opacity-50"
+        >
+          {loading ? "Enviando..." : "Salvar Lançamento"}
+        </button>
       </form>
     </div>
   );
