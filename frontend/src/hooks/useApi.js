@@ -1,30 +1,26 @@
-import { useState } from "react";
+import { useState, useCallback } from "react"; // Adicione useCallback aqui
 
 export function useApi() {
   const [loading, setLoading] = useState(false);
+  const API_URL =
+    import.meta.env.VITE_API_URL || "https://banco-de-horas-ps6j.onrender.com";
 
-  // URL base da API, vem do .env
-  const API_URL = import.meta.env.VITE_API_URL;
-  console.log("Minha API URL atual é:", API_URL);
-
-  const getToken = () => localStorage.getItem("token");
-
-  const request = async (endpoint, options = {}) => {
+  // Use useCallback para que a função 'request' não mude a cada renderização
+  const request = useCallback(async (endpoint, options = {}) => {
     setLoading(true);
+    // Movemos o log para aqui dentro!
+    console.log("Chamando API:", `${API_URL}${endpoint}`);
 
     try {
-      const token = getToken();
-
+      const token = localStorage.getItem("token");
       const defaultHeaders = {
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       };
 
-      // Garantir que endpoint comece com '/'
       const url = `${API_URL}${
         endpoint.startsWith("/") ? endpoint : "/" + endpoint
-      }`.trim();
-
+      }`;
       const res = await fetch(url, {
         ...options,
         headers: { ...defaultHeaders, ...(options.headers || {}) },
@@ -35,18 +31,14 @@ export function useApi() {
         throw new Error(erroMsg || "Erro na requisição");
       }
 
-      try {
-        return await res.json();
-      } catch {
-        return null; // caso não retorne JSON
-      }
+      return await res.json();
     } catch (err) {
       console.error("Erro na requisição:", err);
       throw err;
     } finally {
       setLoading(false);
     }
-  };
+  }, []); // Dependências vazias para a função ser estável
 
   return { request, loading };
 }
