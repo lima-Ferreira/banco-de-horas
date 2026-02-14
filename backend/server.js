@@ -13,20 +13,19 @@ const app = express();
 // Lista de origens permitidas
 
 const allowedOrigins = [
-  "http://localhost:5173", // Adicione exatamente o que aparece no erro do console
-  "http://127.0.0.1:5173",
-  "https://lima-ferreira.github.io",
+  "https://banco-de-horas-frontend.onrender.com", // Exemplo: seu site no ar
+  "http://localhost:5173", // Seu acesso local
+  "http://127.0.0.1:5173", // Alternativa para local
 ];
-
-console.log("✅ Allowed Origins:", allowedOrigins); // <- aqui, fora de qualquer rota
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      console.log("Origem da requisição:", origin); // opcional, mostra cada requisição
+      // Se não houver origin (ex: ferramentas de teste) ou se estiver na lista
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.log("Bloqueado pelo CORS:", origin); // Log para você saber quem foi barrado
         callback(new Error("Not allowed by CORS"));
       }
     },
