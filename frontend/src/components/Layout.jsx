@@ -1,9 +1,16 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 function Layout({ children }) {
   const [menuAberto, setMenuAberto] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate(); // 2. Inicialize o navigate
+
+  // 3. Função para deslogar
+  const handleSair = () => {
+    localStorage.removeItem("token"); // Remove o acesso
+    navigate("/"); // Manda para o login
+  };
 
   const fecharMenu = () => setMenuAberto(false);
 
@@ -104,14 +111,17 @@ function Layout({ children }) {
             <span className="hidden sm:inline font-bold text-slate-500 text-sm">
               Olá, Lima
             </span>
-            <button className="bg-rose-500 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-md hover:bg-rose-600 transition-all active:scale-95">
+            <button
+              onClick={handleSair} // 4. Adicione o clique aqui
+              className="bg-rose-500 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-md hover:bg-rose-600 transition-all active:scale-95"
+            >
               Sair
             </button>
           </div>
         </header>
 
         <div className="flex-1 bg-gray-50">
-          <div className="max-w-6xl mx-auto p-4 md:p-6">{children}</div>
+          <div className="max-w-6xl mx-auto p-4 md:p-6 pb-32">{children}</div>
         </div>
       </main>
     </div>
