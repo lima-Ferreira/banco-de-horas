@@ -75,7 +75,7 @@ function Lancamentos() {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto bg-white p-4 md:p-6 rounded-2xl shadow-sm my-4 border border-gray-100 mb-20">
+    <div className="w-full max-w-3xl mx-auto bg-white p-4 md:p-6 rounded-2xl shadow-sm my-4 border border-gray-100">
       {loading && (
         <div className="fixed inset-0 bg-black/20 flex justify-center items-center z-[60]">
           <div className="bg-white p-4 rounded-xl shadow-xl font-bold">
@@ -192,13 +192,13 @@ function Lancamentos() {
           />
         </div>
 
-        <div className="mt-8 pb-10">
+        <div className="pt-6 pb-4">
           {" "}
           {/* Adicione essa margem e padding aqui */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-xl shadow-lg active:scale-95 disabled:opacity-50 uppercase tracking-widest text-xs"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-xl shadow-lg active:scale-95 disabled:opacity-50 uppercase tracking-widest text-xs py-4"
           >
             {loading ? "Salvando..." : "Finalizar Lançamento"}
           </button>
