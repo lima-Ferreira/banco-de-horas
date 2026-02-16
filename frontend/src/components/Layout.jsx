@@ -120,10 +120,11 @@ function Layout({ children }) {
           </div>
         </header>
 
-        <div className="flex-1 bg-gray-50 overflow-y-auto overflow-x-hidden h-full">
+        {/* No Layout.jsx, a div que recebe as páginas */}
+        <div className="flex-1 bg-gray-50 min-h-screen overflow-y-auto">
           <div className="max-w-5xl mx-auto p-4 md:p-6 pb-44">
-            {/* Esse pb-44 (176px de espaço vazio) garante que o botão 
-        suba acima das barras do navegador do celular */}
+            {" "}
+            {/* O pb-44 cria o espaço para o botão subir */}
             {children}
           </div>
         </div>

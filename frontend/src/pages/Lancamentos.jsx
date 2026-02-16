@@ -192,11 +192,13 @@ function Lancamentos() {
           />
         </div>
 
-        <div className="pt-8 pb-12">
+        <div className="mt-8 pb-10">
+          {" "}
+          {/* Adicione essa margem e padding aqui */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest text-xs"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-xl shadow-lg active:scale-95 disabled:opacity-50 uppercase tracking-widest text-xs"
           >
             {loading ? "Salvando..." : "Finalizar Lançamento"}
           </button>
