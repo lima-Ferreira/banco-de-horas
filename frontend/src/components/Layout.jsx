@@ -120,8 +120,12 @@ function Layout({ children }) {
           </div>
         </header>
 
-        <div className="flex-1 bg-gray-50">
-          <div className="max-w-6xl mx-auto p-4 md:p-6 pb-32">{children}</div>
+        <div className="flex-1 bg-gray-50 overflow-y-auto overflow-x-hidden h-full">
+          <div className="max-w-5xl mx-auto p-4 md:p-6 pb-44">
+            {/* Esse pb-44 (176px de espaço vazio) garante que o botão 
+        suba acima das barras do navegador do celular */}
+            {children}
+          </div>
         </div>
       </main>
     </div>
