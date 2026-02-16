@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+    margin: 0;
+    padding: 0;
+    /* Trava a rolagem global para o Layout assumir o controle */
+    overflow: hidden;
+    /* Opcional: Garante que o toque no celular seja firme */
+    touch-action: pan-y;
+}
+
+
 
 body.print-mode .no-print {
     display: none !important;
