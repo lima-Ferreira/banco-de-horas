@@ -18,7 +18,7 @@ function Funcionarios() {
 
   const carregarFuncionarios = async () => {
     try {
-      const data = await request("/funcionarios"); // GET /api/funcionarios
+      const data = await request("/api/funcionarios"); // GET /api/funcionarios
       setFuncionarios(data);
     } catch (err) {
       console.error("Erro ao carregar funcionários:", err);
@@ -31,7 +31,7 @@ function Funcionarios() {
     setMensagem("");
 
     try {
-      const novoFuncionario = await request("/funcionarios", {
+      const novoFuncionario = await request("/api/funcionarios", {
         method: "POST",
         body: JSON.stringify({ nome, loja, cargo, setor }),
       });

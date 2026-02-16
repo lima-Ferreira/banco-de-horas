@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useApi } from "../hooks/useApi";
 
 function Lancamentos() {
@@ -16,19 +16,26 @@ function Lancamentos() {
   const [observacao, setObservacao] = useState("");
   const [mensagem, setMensagem] = useState("");
 
-  useEffect(() => {
-    carregarFuncionarios();
-  }, []);
+  // Trava para evitar loops no useEffect
+  const carregandoRef = useRef(false);
 
-  const carregarFuncionarios = async () => {
+  const carregarFuncionarios = useCallback(async () => {
+    if (carregandoRef.current) return;
+    carregandoRef.current = true;
     try {
-      const data = await request("/funcionarios");
-      setFuncionarios(data);
+      // Ajustado para /api para evitar erro de HTML no topo
+      const resposta = await request("/api/funcionarios");
+      setFuncionarios(resposta || []);
     } catch (err) {
       console.error("Erro ao carregar funcionários:", err);
-      setMensagem(err.message || "Erro ao carregar funcionários");
+    } finally {
+      carregandoRef.current = false;
     }
-  };
+  }, [request]);
+
+  useEffect(() => {
+    carregarFuncionarios();
+  }, [carregarFuncionarios]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,29 +48,26 @@ function Lancamentos() {
       parseInt(partes[2]),
       12,
       0,
-      0
+      0,
     );
 
     const novoLancamento = {
       funcionarioId,
       data: dataAjustada,
-      horas,
+      horas: tipo === "Hora extra" ? horas : "00:00",
       tipo,
       operacao,
       observacao,
     };
 
     try {
-      await request("/lancamentos", {
+      await request("/api/lancamentos", {
         method: "POST",
         body: JSON.stringify(novoLancamento),
       });
 
       setMensagem("Lançamento salvo com sucesso!");
-      setData(new Date().toISOString().split("T")[0]);
       setHoras("");
-      setTipo("Hora extra");
-      setOperacao("Crédito");
       setObservacao("");
     } catch (err) {
       console.error("Erro:", err);
@@ -72,36 +76,39 @@ function Lancamentos() {
   };
 
   return (
-    /* Ajustado: w-full e p-4 para telas pequenas, p-6 em telas maiores */
-    <div className="w-full max-w-3xl mx-auto bg-white p-4 md:p-6 rounded shadow-md my-2">
+    <div className="w-full max-w-3xl mx-auto bg-white p-4 md:p-6 rounded-2xl shadow-sm my-4 border border-gray-100">
       {loading && (
-        <div className="fixed inset-0 bg-black bg-opacity-20 flex justify-center items-center z-50">
-          <div className="bg-white p-4 rounded shadow">Carregando...</div>
+        <div className="fixed inset-0 bg-black/20 flex justify-center items-center z-[60]">
+          <div className="bg-white p-4 rounded-xl shadow-xl font-bold">
+            Processando...
+          </div>
         </div>
       )}
 
-      <h2 className="text-xl md:text-2xl font-bold mb-4 text-center">
-        Lançamento de Horas
+      <h2 className="text-xl md:text-2xl font-black text-slate-800 mb-6 text-center">
+        Novo Lançamento
       </h2>
 
       {mensagem && (
-        <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded text-center text-sm md:text-base">
+        <div
+          className={`mb-6 p-4 rounded-xl text-center font-bold text-sm ${mensagem.includes("sucesso") ? "bg-green-50 text-green-700 border border-green-100" : "bg-red-50 text-red-700 border border-red-100"}`}
+        >
           {mensagem}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block font-medium mb-1 text-sm md:text-base">
+          <label className="block text-slate-700 font-bold mb-2 text-sm uppercase tracking-wide">
             Funcionário
           </label>
           <select
             value={funcionarioId}
             onChange={(e) => setFuncionarioId(e.target.value)}
-            className="w-full border p-3 md:p-2 rounded text-sm text-gray-700 capitalize focus:ring-2 focus:ring-blue-500 outline-none"
+            className="w-full border-gray-200 border p-3 rounded-xl text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
             required
           >
-            <option value="">Selecione um funcionário</option>
+            <option value="">Selecione...</option>
             {funcionarios.map((f) => (
               <option key={f._id} value={f._id}>
                 {f.nome} - {f.loja}
@@ -110,90 +117,88 @@ function Lancamentos() {
           </select>
         </div>
 
-        <div>
-          <label className="block font-medium mb-1 text-sm md:text-base">
-            Data
-          </label>
-          <input
-            type="date"
-            value={data}
-            onChange={(e) => setData(e.target.value)}
-            className="w-full border p-3 md:p-2 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block font-medium mb-1 text-sm md:text-base">
-            Tipo
-          </label>
-          <select
-            value={tipo}
-            onChange={(e) => setTipo(e.target.value)}
-            className="w-full border p-3 md:p-2 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-            required
-          >
-            <option>Hora extra</option>
-            <option>Falta justificada</option>
-            <option>Falta injustificada</option>
-            <option>Folga</option>
-            <option>Atestado</option>
-            <option>Suspensão</option>
-          </select>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-slate-700 font-bold mb-2 text-sm uppercase tracking-wide">
+              Data
+            </label>
+            <input
+              type="date"
+              value={data}
+              onChange={(e) => setData(e.target.value)}
+              className="w-full border-gray-200 border p-3 rounded-xl text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-slate-700 font-bold mb-2 text-sm uppercase tracking-wide">
+              Tipo de Registro
+            </label>
+            <select
+              value={tipo}
+              onChange={(e) => setTipo(e.target.value)}
+              className="w-full border-gray-200 border p-3 rounded-xl text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500"
+              required
+            >
+              <option>Hora extra</option>
+              <option>Falta justificada</option>
+              <option>Falta injustificada</option>
+              <option>Folga</option>
+              <option>Atestado</option>
+              <option>Suspensão</option>
+            </select>
+          </div>
         </div>
 
         {tipo === "Hora extra" && (
-          /* Ajustado: flex-col no mobile para não espremer os campos */
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <label className="block font-medium mb-1 text-sm md:text-base">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
+            <div>
+              <label className="block text-slate-700 font-bold mb-2 text-sm uppercase tracking-wide">
                 Operação
               </label>
               <select
                 value={operacao}
                 onChange={(e) => setOperacao(e.target.value)}
-                className="w-full border p-3 md:p-2 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full border-gray-200 border p-3 rounded-xl text-sm bg-gray-50"
               >
                 <option>Crédito</option>
                 <option>Débito</option>
               </select>
             </div>
-
-            <div className="flex-1">
-              <label className="block font-medium mb-1 text-sm md:text-base">
-                Horas
+            <div>
+              <label className="block text-slate-700 font-bold mb-2 text-sm uppercase tracking-wide">
+                Quantidade de Horas
               </label>
               <input
                 type="time"
                 value={horas}
                 onChange={(e) => setHoras(e.target.value)}
-                step="60"
-                className="w-full border p-3 md:p-2 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full border-gray-200 border p-3 rounded-xl text-sm bg-gray-50"
+                required
               />
             </div>
           </div>
         )}
 
         <div>
-          <label className="block font-medium mb-1 text-sm md:text-base">
+          <label className="block text-slate-700 font-bold mb-2 text-sm uppercase tracking-wide">
             Observação
           </label>
           <textarea
             value={observacao}
             onChange={(e) => setObservacao(e.target.value)}
-            className="w-full border p-3 md:p-2 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            className="w-full border-gray-200 border p-3 rounded-xl text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500"
             rows={3}
           />
         </div>
 
-        <div className="pt-2">
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white font-bold px-6 py-4 md:py-2 rounded hover:bg-blue-700 transition-colors shadow-sm active:scale-[0.98]"
-          >
-            Salvar Lançamento
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl shadow-lg shadow-blue-100 transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest text-xs"
+        >
+          {loading ? "Salvando..." : "Finalizar Lançamento"}
+        </button>
       </form>
     </div>
   );
