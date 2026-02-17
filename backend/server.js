@@ -10,7 +10,8 @@ const authRoutes = require("./routes/auth");
 const path = require("path");
 
 // 1. Serve os arquivos estáticos da pasta build/dist do React
-app.use(express.static(path.join(__dirname, "dist"))); // ou 'build'
+// ou 'build'
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
 const app = express();
 
@@ -60,7 +61,7 @@ mongoose
 
 // Qualquer rota que não seja da API, manda o index.html
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
+  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
 });
 
 // Porta do servidor
