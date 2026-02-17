@@ -44,7 +44,7 @@ router.post("/login", async (req, res) => {
     // AJUSTE AQUI: Incluímos a 'role' dentro do Token
     const token = jwt.sign(
       { id: usuario._id, role: usuario.role },
-      "segredo123",
+      "Lima1128071993",
       { expiresIn: "1d" },
     );
 
