@@ -1,9 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const Lancamento = require("../models/Lancamento");
+const checkAdmin = require("../middlewares/checkAdmin"); // 1. IMPORTA O SEGURANÇA
 
-// Criar novo lançamento
-router.post("/", async (req, res) => {
+// Criar novo lançamento - PROTEGIDO
+router.post("/", checkAdmin, async (req, res) => {
+  // 2. ADICIONA O MIDDLEWARE AQUI
   try {
     const { funcionarioId, data, horas, tipo, operacao, observacao } = req.body;
 
@@ -24,15 +26,16 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Atualizar lançamento
-router.put("/:id", async (req, res) => {
+// Atualizar lançamento - PROTEGIDO
+router.put("/:id", checkAdmin, async (req, res) => {
+  // 3. ADICIONA O MIDDLEWARE AQUI
   try {
     const { data, tipo, operacao, horas, observacao } = req.body;
 
     const atualizado = await Lancamento.findByIdAndUpdate(
       req.params.id,
       { data, tipo, operacao, horas, observacao },
-      { new: true }
+      { new: true },
     );
 
     if (!atualizado) {
@@ -46,8 +49,9 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// Excluir lançamento
-router.delete("/:id", async (req, res) => {
+// Excluir lançamento - PROTEGIDO
+router.delete("/:id", checkAdmin, async (req, res) => {
+  // 4. ADICIONA O MIDDLEWARE AQUI
   try {
     const deletado = await Lancamento.findByIdAndDelete(req.params.id);
 
@@ -62,7 +66,7 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-// Buscar lançamentos por funcionário
+// Buscar lançamentos por funcionário - PÚBLICO (LOGADO)
 router.get("/funcionario/:id", async (req, res) => {
   try {
     const lancamentos = await Lancamento.find({
@@ -76,7 +80,7 @@ router.get("/funcionario/:id", async (req, res) => {
   }
 });
 
-// Buscar todos
+// Buscar todos - PÚBLICO (LOGADO)
 router.get("/", async (req, res) => {
   try {
     const lancamentos = await Lancamento.find()

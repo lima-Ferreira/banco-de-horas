@@ -12,7 +12,16 @@ router.post("/register", async (req, res) => {
     if (usuarioExistente)
       return res.status(400).json({ message: "Email já cadastrado" });
 
-    const novoUsuario = new Usuario({ nome, email, senha });
+    // Define se é admin ou usuário comum
+    // ESCOLHA SUA SENHA SECRETA AQUI:
+    const ehAdmin = codigoAdmin === "Lima1128071993#";
+
+    const novoUsuario = new Usuario({
+      nome,
+      email,
+      senha,
+      role: ehAdmin ? "admin" : "user",
+    });
     await novoUsuario.save();
     res.status(201).json({ message: "Usuário registrado com sucesso" });
   } catch (err) {
@@ -32,9 +41,12 @@ router.post("/login", async (req, res) => {
     const senhaOk = await bcrypt.compare(senha, usuario.senha);
     if (!senhaOk) return res.status(400).json({ message: "Senha inválida" });
 
-    const token = jwt.sign({ id: usuario._id }, "segredo123", {
-      expiresIn: "1d",
-    });
+    // AJUSTE AQUI: Incluímos a 'role' dentro do Token
+    const token = jwt.sign(
+      { id: usuario._id, role: usuario.role },
+      "segredo123",
+      { expiresIn: "1d" },
+    );
 
     res.json({
       token,
@@ -42,9 +54,11 @@ router.post("/login", async (req, res) => {
         id: usuario._id,
         nome: usuario.nome,
         email: usuario.email,
+        role: usuario.role, // AJUSTE AQUI: Enviamos para o Frontend também
       },
     });
   } catch (err) {
+    console.error("Erro no login:", err);
     res.status(500).json({ message: "Erro ao fazer login" });
   }
 });
