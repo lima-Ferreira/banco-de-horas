@@ -1,29 +1,38 @@
-const jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken"); // Certifique-se que essa linha existe!
 
 const checkAdmin = (req, res, next) => {
-  // 1. Pega o token do header (formato: "Bearer TOKEN")
-  const authHeader = req.headers.authorization;
-  const token = authHeader.split(" ")[1];
-
-  if (!token) {
-    return res.status(401).json({ message: "Acesso negado. Faça login." });
-  }
-
   try {
-    // 2. Valida o token com o SEU segredo (deve ser o mesmo do auth.js)
-    const verificado = jwt.verify(token, "Lima1128071993#");
+    const authHeader = req.headers.authorization;
 
-    // 3. O PULO DO GATO: Se no token não disser que é admin, barra aqui!
+    if (!authHeader) {
+      console.log("ERRO: Nenhum header de autorização encontrado");
+      return res.status(401).json({ message: "Acesso negado. Faça login." });
+    }
+
+    // Pega o token removendo o "Bearer "
+    const token = authHeader.startsWith("Bearer ")
+      ? authHeader.split(" ")[1]
+      : authHeader;
+
+    if (!token) {
+      return res.status(401).json({ message: "Token não encontrado." });
+    }
+
+    // O SEGREDO "segredo123" deve ser igual ao do seu auth.js
+    const verificado = jwt.verify(token, "segredo123");
+
+    // Verifica a role
     if (verificado.role !== "admin") {
       return res
         .status(403)
-        .json({ message: "Acesso restrito apenas ao Administrador." });
+        .json({ message: "Acesso restrito ao Administrador." });
     }
 
     req.usuario = verificado;
-    next(); // Se chegou aqui, é o Lima! Pode seguir.
+    next(); // TUDO OK! Segue para a rota.
   } catch (err) {
-    res.status(400).json({ message: "Sessão inválida ou expirada." });
+    console.error("ERRO NO MIDDLEWARE ADMIN:", err.message);
+    return res.status(401).json({ message: "Sessão inválida ou expirada." });
   }
 };
 
