@@ -7,6 +7,10 @@ const mongoose = require("mongoose");
 const funcionariosRoutes = require("./routes/funcionarios");
 const lancamentosRoutes = require("./routes/lancamentos");
 const authRoutes = require("./routes/auth");
+const path = require("path");
+
+// 1. Serve os arquivos estáticos da pasta build/dist do React
+app.use(express.static(path.join(__dirname, "dist"))); // ou 'build'
 
 const app = express();
 
@@ -34,7 +38,7 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
-  })
+  }),
 );
 
 // Middleware para JSON
@@ -53,6 +57,11 @@ mongoose
   })
   .then(() => console.log("✅ MongoDB conectado"))
   .catch((err) => console.error("❌ Erro MongoDB:", err));
+
+// Qualquer rota que não seja da API, manda o index.html
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
+});
 
 // Porta do servidor
 const PORT = process.env.PORT || 5000;
