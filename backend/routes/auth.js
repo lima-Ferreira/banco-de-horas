@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Registro
 router.post("/register", async (req, res) => {
-  const { nome, email, senha } = req.body;
+  const { nome, email, senha, codigoAdmin } = req.body;
   try {
     const usuarioExistente = await Usuario.findOne({ email });
     if (usuarioExistente)
@@ -14,7 +14,7 @@ router.post("/register", async (req, res) => {
 
     // Define se é admin ou usuário comum
     // ESCOLHA SUA SENHA SECRETA AQUI:
-    const ehAdmin = codigoAdmin === "Lima1128071993#";
+    const ehAdmin = codigoAdmin === "Lima1128071993";
 
     const novoUsuario = new Usuario({
       nome,

@@ -10,16 +10,17 @@ const checkAdmin = (req, res, next) => {
 
     // Lógica infalível para pegar o token:
     // Se vier "Bearer TOKEN", ele pega só o TOKEN. Se vier só o TOKEN, ele mantém.
+    // Substitua o trecho do token por este:
     const token = authHeader.startsWith("Bearer ")
-      ? authHeader.split(" ")[1]
-      : authHeader;
+      ? authHeader.split(" ")[1] // Pega a segunda parte
+      : authHeader; // Se não tiver Bearer, tenta usar a string toda
 
     if (!token) {
       return res.status(401).json({ message: "Token não encontrado." });
     }
 
     // O "segredo123" deve ser RIGOROSAMENTE igual ao do seu auth.js
-    const verificado = jwt.verify(token, "segredo123");
+    const verificado = jwt.verify(token, "Lima1128071993");
 
     if (verificado.role !== "admin") {
       return res
