@@ -8,15 +8,11 @@ const funcionariosRoutes = require("./routes/funcionarios");
 const lancamentosRoutes = require("./routes/lancamentos");
 const authRoutes = require("./routes/auth");
 const path = require("path");
+const app = express();
 
 // 1. Serve os arquivos estáticos da pasta build/dist do React
 // ou 'build'
-app.use(
-  express.static(path.join(__dirname, "../banco-de-horas-frontend/dist")),
-);
-
-const app = express();
-
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
 // Lista de origens permitidas
 
 const allowedOrigins = [
@@ -63,9 +59,7 @@ mongoose
 
 // Qualquer rota que não seja da API, manda o index.html
 app.get("*", (req, res) => {
-  res.sendFile(
-    path.join(__dirname, "../banco-de-horas-frontend/dist", "index.html"),
-  );
+  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
 });
 // Porta do servidor
 const PORT = process.env.PORT || 5000;
