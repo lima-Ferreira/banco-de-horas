@@ -6,6 +6,9 @@ import { useApi } from "../hooks/useApi";
 import "../estilos-pdf.css";
 
 function Historico() {
+  const dadosUsuario = JSON.parse(localStorage.getItem("usuario"));
+  const isAdmin = dadosUsuario?.role === "admin";
+
   const [lancamentos, setLancamentos] = useState([]);
   const [funcionarios, setFuncionarios] = useState([]);
   const [filtroFuncionario, setFiltroFuncionario] = useState("");
@@ -54,6 +57,7 @@ function Historico() {
 
   // 2. CORREÇÃO DE ROTAS (DELETE e PUT)
   const deletarLancamento = async (id) => {
+    if (!isAdmin) return alert("Ação restrita ao administrador."); // Trava
     if (!window.confirm("Deseja excluir este lançamento?")) return;
     try {
       await request(`/api/lancamentos/${id}`, { method: "DELETE" });
@@ -64,6 +68,7 @@ function Historico() {
   };
 
   const salvarEdicao = async () => {
+    if (!isAdmin) return alert("Ação restrita ao administrador."); // Trava
     const { _id, data, tipo, operacao, horas, observacao } = edicao;
     try {
       await request(`/api/lancamentos/${_id}`, {
@@ -80,6 +85,7 @@ function Historico() {
   };
 
   const abrirModalEdicao = (lanc) => {
+    if (!isAdmin) return alert("Ação restrita ao administrador."); // Trava
     const dataFormatada = formatarDataLocal(
       parseDataLocal(lanc.data.split("T")[0]),
     );
@@ -350,9 +356,11 @@ function Historico() {
                     <th className="p-2 border font-bold text-slate-700 w-[40%]">
                       Observação
                     </th>
-                    <th className="p-2 border font-bold text-slate-700 no-print">
-                      Ações
-                    </th>
+                    {isAdmin && (
+                      <th className="p-2 border font-bold text-slate-700 no-print">
+                        Ações
+                      </th>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
@@ -373,20 +381,23 @@ function Historico() {
                       <td className="p-2 border text-left capitalize">
                         {l.observacao || "-"}
                       </td>
-                      <td className="p-2 border text-center no-print space-x-2">
-                        <button
-                          className="text-blue-600 font-bold hover:underline"
-                          onClick={() => abrirModalEdicao(l)}
-                        >
-                          Editar
-                        </button>
-                        <button
-                          className="text-rose-600 font-bold hover:underline"
-                          onClick={() => deletarLancamento(l._id)}
-                        >
-                          Excluir
-                        </button>
-                      </td>
+                      {/* SÓ MOSTRA OS BOTÕES SE FOR ADMIN */}
+                      {isAdmin && (
+                        <td className="p-2 border text-center no-print space-x-2">
+                          <button
+                            className="text-blue-600 font-bold hover:underline"
+                            onClick={() => abrirModalEdicao(l)}
+                          >
+                            Editar
+                          </button>
+                          <button
+                            className="text-rose-600 font-bold hover:underline"
+                            onClick={() => deletarLancamento(l._id)}
+                          >
+                            Excluir
+                          </button>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -455,7 +466,7 @@ function Historico() {
       </div>
 
       {/* Modal de Edição (Corrigido para combinar com o novo Layout) */}
-      {modalAberto && edicao && (
+      {modalAberto && edicao && isAdmin && (
         <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-[60] p-4 backdrop-blur-sm">
           <div className="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-md animate-in zoom-in-95 duration-200">
             <h3 className="text-lg font-black text-slate-800 mb-6 uppercase tracking-tighter border-b pb-2">

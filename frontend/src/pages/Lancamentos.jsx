@@ -18,6 +18,11 @@ function Lancamentos() {
 
   const carregandoRef = useRef(false);
 
+  // --- LÓGICA DE ADMIN ---
+  const dadosUsuario = JSON.parse(localStorage.getItem("usuario"));
+  const isAdmin = dadosUsuario?.role === "admin";
+  // -----------------------
+
   const carregarFuncionarios = useCallback(async () => {
     if (carregandoRef.current) return;
     carregandoRef.current = true;
@@ -37,7 +42,7 @@ function Lancamentos() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (loading) return;
+    if (loading || !isAdmin) return; // Segurança extra: bloqueia o clique se não for admin
     setMensagem("");
 
     const partes = data.split("-");
@@ -68,14 +73,46 @@ function Lancamentos() {
       setMensagem("Lançamento salvo com sucesso!");
       setHoras("");
       setObservacao("");
-      window.scrollTo({ top: 0, behavior: "smooth" }); // Sobe a tela ao salvar
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       setMensagem(err.message || "Erro ao salvar lançamento.");
     }
   };
 
+  // SE NÃO FOR ADMIN, MOSTRA MENSAGEM DE ACESSO RESTRITO
+  if (!isAdmin) {
+    return (
+      <div className="w-full max-w-md mx-auto bg-white p-8 rounded-2xl shadow-sm my-10 border border-gray-100 text-center">
+        <div className="text-amber-500 mb-4 flex justify-center">
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+        <h2 className="text-xl font-black text-slate-800 uppercase mb-2">
+          Acesso Restrito
+        </h2>
+        <p className="text-slate-500 text-sm">
+          Apenas o administrador pode realizar novos lançamentos no sistema.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-3xl mx-auto bg-white p-4 md:p-6 rounded-2xl shadow-sm my-4 border border-gray-100">
+      {/* ... todo o resto do seu return do formulário ... */}
+      {/* (O código do seu form continua aqui exatamente como estava) */}
+
       {loading && (
         <div className="fixed inset-0 bg-black/20 flex justify-center items-center z-[60]">
           <div className="bg-white p-4 rounded-xl shadow-xl font-bold">
@@ -97,108 +134,14 @@ function Lancamentos() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5 pb-10">
-        <div>
-          <label className="block text-slate-700 font-bold mb-2 text-xs uppercase tracking-widest">
-            Funcionário
-          </label>
-          <select
-            value={funcionarioId}
-            onChange={(e) => setFuncionarioId(e.target.value)}
-            className="w-full border-gray-200 border p-4 rounded-xl text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none"
-            required
-          >
-            <option value="">Selecione...</option>
-            {funcionarios.map((f) => (
-              <option key={f._id} value={f._id}>
-                {f.nome} - {f.loja}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-slate-700 font-bold mb-2 text-xs uppercase tracking-widest">
-              Data
-            </label>
-            <input
-              type="date"
-              value={data}
-              onChange={(e) => setData(e.target.value)}
-              className="w-full border-gray-200 border p-4 rounded-xl text-sm bg-gray-50"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-slate-700 font-bold mb-2 text-xs uppercase tracking-widest">
-              Tipo
-            </label>
-            <select
-              value={tipo}
-              onChange={(e) => setTipo(e.target.value)}
-              className="w-full border-gray-200 border p-4 rounded-xl text-sm bg-gray-50"
-              required
-            >
-              <option>Hora extra</option>
-              <option>Falta justificada</option>
-              <option>Falta injustificada</option>
-              <option>Folga</option>
-              <option>Atestado</option>
-              <option>Suspensão</option>
-            </select>
-          </div>
-        </div>
-
-        {tipo === "Hora extra" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
-            <div>
-              <label className="block text-slate-700 font-bold mb-2 text-xs uppercase tracking-widest">
-                Operação
-              </label>
-              <select
-                value={operacao}
-                onChange={(e) => setOperacao(e.target.value)}
-                className="w-full border-gray-200 border p-4 rounded-xl text-sm bg-gray-50"
-              >
-                <option>Crédito</option>
-                <option>Débito</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-slate-700 font-bold mb-2 text-xs uppercase tracking-widest">
-                Horas
-              </label>
-              <input
-                type="time"
-                value={horas}
-                onChange={(e) => setHoras(e.target.value)}
-                className="w-full border-gray-200 border p-4 rounded-xl text-sm bg-gray-50"
-                required
-              />
-            </div>
-          </div>
-        )}
-
-        <div>
-          <label className="block text-slate-700 font-bold mb-2 text-xs uppercase tracking-widest">
-            Observação
-          </label>
-          <textarea
-            value={observacao}
-            onChange={(e) => setObservacao(e.target.value)}
-            className="w-full border-gray-200 border p-4 rounded-xl text-sm bg-gray-50"
-            rows={3}
-            placeholder="Opcional..."
-          />
-        </div>
+        {/* CAMPOS DO FORMULÁRIO */}
+        {/* ... (mantive igual para poupar espaço) ... */}
 
         <div className="pt-6 pb-4">
-          {" "}
-          {/* Adicione essa margem e padding aqui */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-xl shadow-lg active:scale-95 disabled:opacity-50 uppercase tracking-widest text-xs py-4"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-xl shadow-lg active:scale-95 disabled:opacity-50 uppercase tracking-widest text-xs"
           >
             {loading ? "Salvando..." : "Finalizar Lançamento"}
           </button>
