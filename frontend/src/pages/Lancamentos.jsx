@@ -137,6 +137,101 @@ function Lancamentos() {
         {/* CAMPOS DO FORMULÁRIO */}
         {/* ... (mantive igual para poupar espaço) ... */}
 
+        <div>
+          <label className="block text-slate-700 font-bold mb-2 text-xs uppercase tracking-widest">
+            Funcionário
+          </label>
+          <select
+            value={funcionarioId}
+            onChange={(e) => setFuncionarioId(e.target.value)}
+            className="w-full border-gray-200 border p-4 rounded-xl text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none"
+            required
+          >
+            <option value="">Selecione...</option>
+            {funcionarios.map((f) => (
+              <option key={f._id} value={f._id}>
+                {f.nome} - {f.loja}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-slate-700 font-bold mb-2 text-xs uppercase tracking-widest">
+              Data
+            </label>
+            <input
+              type="date"
+              value={data}
+              onChange={(e) => setData(e.target.value)}
+              className="w-full border-gray-200 border p-4 rounded-xl text-sm bg-gray-50"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-slate-700 font-bold mb-2 text-xs uppercase tracking-widest">
+              Tipo
+            </label>
+            <select
+              value={tipo}
+              onChange={(e) => setTipo(e.target.value)}
+              className="w-full border-gray-200 border p-4 rounded-xl text-sm bg-gray-50"
+              required
+            >
+              <option>Hora extra</option>
+              <option>Falta justificada</option>
+              <option>Falta injustificada</option>
+              <option>Folga</option>
+              <option>Atestado</option>
+              <option>Suspensão</option>
+            </select>
+          </div>
+        </div>
+
+        {tipo === "Hora extra" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
+            <div>
+              <label className="block text-slate-700 font-bold mb-2 text-xs uppercase tracking-widest">
+                Operação
+              </label>
+              <select
+                value={operacao}
+                onChange={(e) => setOperacao(e.target.value)}
+                className="w-full border-gray-200 border p-4 rounded-xl text-sm bg-gray-50"
+              >
+                <option>Crédito</option>
+                <option>Débito</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-slate-700 font-bold mb-2 text-xs uppercase tracking-widest">
+                Horas
+              </label>
+              <input
+                type="time"
+                value={horas}
+                onChange={(e) => setHoras(e.target.value)}
+                className="w-full border-gray-200 border p-4 rounded-xl text-sm bg-gray-50"
+                required
+              />
+            </div>
+          </div>
+        )}
+
+        <div>
+          <label className="block text-slate-700 font-bold mb-2 text-xs uppercase tracking-widest">
+            Observação
+          </label>
+          <textarea
+            value={observacao}
+            onChange={(e) => setObservacao(e.target.value)}
+            className="w-full border-gray-200 border p-4 rounded-xl text-sm bg-gray-50"
+            rows={3}
+            placeholder="Opcional..."
+          />
+        </div>
+
         <div className="pt-6 pb-4">
           <button
             type="submit"
