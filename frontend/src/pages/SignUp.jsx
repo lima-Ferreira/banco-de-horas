@@ -1,34 +1,36 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useApi } from "../hooks/useApi"; // Importe o seu hook!
 
 function SignUp() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [codigoAdmin, setCodigoAdmin] = useState(""); // Campo para a chave mestra
   const [mensagem, setMensagem] = useState("");
+  const { request, loading } = useApi(); // Use o seu hook aqui
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMensagem("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
+      // Usando o seu hook 'request', ele já sabe que deve ir para o Render!
+      await request("/api/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nome, email, senha }),
+        body: JSON.stringify({
+          nome,
+          email,
+          senha,
+          codigoAdmin, // Enviando a chave para o backend conferir
+        }),
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setMensagem(data.message || "Erro ao cadastrar.");
-        return;
-      }
 
       setMensagem("Cadastro realizado com sucesso!");
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
-      setMensagem("Erro ao conectar com o servidor.");
+      setMensagem(err.message || "Erro ao conectar com o servidor.");
     }
   };
 
@@ -36,55 +38,77 @@ function SignUp() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-white shadow-md rounded px-8 pt-6 pb-8 w-full max-w-sm"
+        className="bg-white shadow-md rounded-2xl px-8 pt-6 pb-8 w-full max-w-sm"
       >
-        <h2 className="text-xl font-bold mb-4 text-center">
-          Cadastrar Usuário
+        <h2 className="text-xl font-black mb-6 text-center text-slate-800 uppercase">
+          Criar Conta
         </h2>
 
         {mensagem && (
-          <div className="mb-4 text-sm text-red-600 text-center">
+          <div
+            className={`mb-4 p-2 text-sm text-center rounded ${mensagem.includes("sucesso") ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+          >
             {mensagem}
           </div>
         )}
 
-        <input
-          type="text"
-          placeholder="Nome"
-          value={nome}
-          onChange={(e) => setNome(e.target.value)}
-          className="w-full border p-2 rounded mb-4"
-          required
-        />
-        <input
-          type="email"
-          placeholder="E-mail"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full border p-2 rounded mb-4"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Senha"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
-          className="w-full border p-2 rounded mb-4"
-          required
-        />
+        <div className="space-y-4">
+          <input
+            type="text"
+            placeholder="Nome"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+            className="w-full border p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+          <input
+            type="email"
+            placeholder="E-mail"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full border p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Senha"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            className="w-full border p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+
+          {/* Campo opcional para código admin */}
+          <div className="pt-2 border-t mt-2">
+            <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">
+              Chave de Administrador (Opcional)
+            </label>
+            <input
+              type="password"
+              placeholder="Código Secreto"
+              value={codigoAdmin}
+              onChange={(e) => setCodigoAdmin(e.target.value)}
+              className="w-full border p-3 rounded-xl text-sm bg-gray-50"
+            />
+          </div>
+        </div>
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold mt-6 hover:bg-blue-700 transition-all disabled:opacity-50"
         >
-          Cadastrar
+          {loading ? "Cadastrando..." : "Finalizar Cadastro"}
         </button>
 
-        <p className="mt-4 text-center text-sm">
+        <p className="mt-4 text-center text-sm text-gray-500">
           Já tem uma conta?{" "}
-          <a href="/login" className="text-blue-600 hover:underline">
+          <button
+            onClick={() => navigate("/login")}
+            className="text-blue-600 font-bold hover:underline"
+          >
             Entrar
-          </a>
+          </button>
         </p>
       </form>
     </div>
