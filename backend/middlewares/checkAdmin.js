@@ -1,28 +1,26 @@
 const jwt = require("jsonwebtoken");
 
 const checkAdmin = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  console.log("--- DEBUG CHECKADMIN ---");
+  console.log("Header recebido:", authHeader);
+
+  if (!authHeader) {
+    return res.status(401).json({ message: "Acesso negado. Faça login." });
+  }
+
+  // Pega o token limpando o 'Bearer '
+  const token = authHeader.replace("Bearer ", "").trim();
+  console.log("Token extraído:", token.substring(0, 10) + "...");
+
   try {
-    const authHeader = req.headers.authorization;
+    const segredo = "Lima1128071993"; // Garanta que é o mesmo do auth.js
+    const verificado = jwt.verify(token, segredo);
 
-    if (!authHeader) {
-      return res.status(401).json({ message: "Acesso negado. Faça login." });
-    }
-
-    // Lógica infalível para pegar o token:
-    // Se vier "Bearer TOKEN", ele pega só o TOKEN. Se vier só o TOKEN, ele mantém.
-    // Substitua o trecho do token por este:
-    const token = authHeader.startsWith("Bearer ")
-      ? authHeader.split(" ")[1] // Pega a segunda parte
-      : authHeader; // Se não tiver Bearer, tenta usar a string toda
-
-    if (!token) {
-      return res.status(401).json({ message: "Token não encontrado." });
-    }
-
-    // O "segredo123" deve ser RIGOROSAMENTE igual ao do seu auth.js
-    const verificado = jwt.verify(token, "Lima1128071993");
+    console.log("Role no token:", verificado.role);
 
     if (verificado.role !== "admin") {
+      console.log("Bloqueado: Usuário não é admin");
       return res
         .status(403)
         .json({ message: "Acesso restrito ao Administrador." });
@@ -31,10 +29,10 @@ const checkAdmin = (req, res, next) => {
     req.usuario = verificado;
     next();
   } catch (err) {
-    console.error("ERRO JWT:", err.message);
+    console.error("ERRO NA VERIFICAÇÃO:", err.message);
     return res
       .status(401)
-      .json({ message: "Sessão expirada. Por favor, saia e entre novamente." });
+      .json({ message: "Sessão inválida. Saia e entre novamente." });
   }
 };
 

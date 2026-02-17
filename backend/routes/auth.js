@@ -43,7 +43,10 @@ router.post("/login", async (req, res) => {
 
     // AJUSTE AQUI: Incluímos a 'role' dentro do Token
     const token = jwt.sign(
-      { id: usuario._id, role: usuario.role },
+      {
+        id: usuario._id,
+        role: usuario.role || "user", // Se não achar no banco, assume 'user'
+      },
       "Lima1128071993",
       { expiresIn: "1d" },
     );
