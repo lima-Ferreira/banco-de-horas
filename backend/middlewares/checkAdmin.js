@@ -1,26 +1,20 @@
 const jwt = require("jsonwebtoken");
 
 const checkAdmin = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  console.log("--- DEBUG CHECKADMIN ---");
-  console.log("Header recebido:", authHeader);
-
-  if (!authHeader) {
-    return res.status(401).json({ message: "Acesso negado. Faça login." });
-  }
-
-  // Pega o token limpando o 'Bearer '
-  const token = authHeader.replace("Bearer ", "").trim();
-  console.log("Token extraído:", token.substring(0, 10) + "...");
-
   try {
-    const segredo = "Lima1128071993"; // Garanta que é o mesmo do auth.js
-    const verificado = jwt.verify(token, segredo);
+    const authHeader = req.headers.authorization;
 
-    console.log("Role no token:", verificado.role);
+    if (!authHeader) {
+      return res.status(401).json({ message: "Acesso negado. Faça login." });
+    }
+
+    // Pega o token limpando o "Bearer " e espaços
+    const token = authHeader.replace("Bearer ", "").trim();
+
+    // SEGREDO NOVO: LIMA2025 (Deve ser igual ao auth.js)
+    const verificado = jwt.verify(token, "LIMA_ADMIN_2024");
 
     if (verificado.role !== "admin") {
-      console.log("Bloqueado: Usuário não é admin");
       return res
         .status(403)
         .json({ message: "Acesso restrito ao Administrador." });
@@ -29,10 +23,10 @@ const checkAdmin = (req, res, next) => {
     req.usuario = verificado;
     next();
   } catch (err) {
-    console.error("ERRO NA VERIFICAÇÃO:", err.message);
+    console.error("Erro na verificação:", err.message);
     return res
       .status(401)
-      .json({ message: "Sessão inválida. Saia e entre novamente." });
+      .json({ message: "Sessão expirada. Saia e entre novamente." });
   }
 };
 

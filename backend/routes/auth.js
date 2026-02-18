@@ -12,9 +12,7 @@ router.post("/register", async (req, res) => {
     if (usuarioExistente)
       return res.status(400).json({ message: "Email já cadastrado" });
 
-    // Define se é admin ou usuário comum
-    // ESCOLHA SUA SENHA SECRETA AQUI:
-    const ehAdmin = codigoAdmin === "Lima1128071993";
+    const ehAdmin = codigoAdmin === "LIMA_ADMIN_2024";
 
     const novoUsuario = new Usuario({
       nome,
@@ -25,7 +23,6 @@ router.post("/register", async (req, res) => {
     await novoUsuario.save();
     res.status(201).json({ message: "Usuário registrado com sucesso" });
   } catch (err) {
-    console.error("Erro ao registrar usuário:", err);
     res.status(500).json({ message: "Erro ao registrar usuário" });
   }
 });
@@ -41,13 +38,10 @@ router.post("/login", async (req, res) => {
     const senhaOk = await bcrypt.compare(senha, usuario.senha);
     if (!senhaOk) return res.status(400).json({ message: "Senha inválida" });
 
-    // AJUSTE AQUI: Incluímos a 'role' dentro do Token
+    // SEGREDO NOVO: LIMA2025
     const token = jwt.sign(
-      {
-        id: usuario._id,
-        role: usuario.role || "user", // Se não achar no banco, assume 'user'
-      },
-      "Lima1128071993",
+      { id: usuario._id, role: usuario.role || "user" },
+      "LIMA2025",
       { expiresIn: "1d" },
     );
 
@@ -57,11 +51,10 @@ router.post("/login", async (req, res) => {
         id: usuario._id,
         nome: usuario.nome,
         email: usuario.email,
-        role: usuario.role, // AJUSTE AQUI: Enviamos para o Frontend também
+        role: usuario.role || "user",
       },
     });
   } catch (err) {
-    console.error("Erro no login:", err);
     res.status(500).json({ message: "Erro ao fazer login" });
   }
 });
