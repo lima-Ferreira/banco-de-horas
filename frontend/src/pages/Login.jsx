@@ -16,17 +16,22 @@ function Login() {
     e.preventDefault();
     setMensagem("");
 
+    // Exemplo de como deve ficar dentro do seu Login.jsx
     try {
       const data = await request("/api/auth/login", {
         method: "POST",
-        credentials: "include",
         body: JSON.stringify({ nome, senha }),
       });
 
-      login(data.usuario);
-      navigate("/dashboard");
+      // O SEGREDO ESTÁ AQUI: Salvar no navegador com o nome "token"
+      if (data.token) {
+        localStorage.setItem("token", data.token); // Salva o crachá
+        localStorage.setItem("usuario", JSON.stringify(data.usuario)); // Salva os dados do Lima (incluindo a role admin)
+
+        navigate("/dashboard"); // Redireciona para o sistema
+      }
     } catch (err) {
-      setMensagem(err.message || "Erro ao fazer login");
+      setMensagem("Erro ao entrar: " + err.message);
     }
   };
 

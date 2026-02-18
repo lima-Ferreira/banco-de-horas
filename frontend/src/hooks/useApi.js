@@ -12,18 +12,26 @@ export function useApi() {
     console.log("Chamando API:", `${API_URL}${endpoint}`);
 
     try {
+      // No seu useApi.js, dentro do try:
+
       const token = localStorage.getItem("token");
-      const defaultHeaders = {
+
+      // Criamos os headers básicos
+      const combinedHeaders = {
         "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(options.headers || {}), // Pega headers extras se existirem
       };
 
-      const url = `${API_URL}${
-        endpoint.startsWith("/") ? endpoint : "/" + endpoint
-      }`;
+      // FORÇAMOS o Authorization aqui para não ter erro
+      if (token) {
+        combinedHeaders["Authorization"] = `Bearer ${token}`;
+      }
+
+      const url = `${API_URL}${endpoint.startsWith("/") ? endpoint : "/" + endpoint}`;
+
       const res = await fetch(url, {
         ...options,
-        headers: { ...defaultHeaders, ...(options.headers || {}) },
+        headers: combinedHeaders, // Usa o objeto que montamos acima
       });
 
       if (!res.ok) {
