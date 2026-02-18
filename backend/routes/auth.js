@@ -48,7 +48,7 @@ router.post("/login", async (req, res) => {
         role: usuario.role || "user", // Se não achar no banco, assume 'user'
       },
       "Lima1128071993",
-      { expiresIn: "id" },
+      { expiresIn: "1d" },
     );
 
     res.json({
