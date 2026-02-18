@@ -4,31 +4,33 @@ import { useNavigate } from "react-router-dom";
 import { useApi } from "../hooks/useApi";
 
 function Login() {
-  const { login } = useContext(AuthContext);
+  const { login } = useContext(AuthContext); // <-- Isso aqui já estava certo!
   const { request, loading } = useApi();
   const [nome, setNome] = useState("");
   const [senha, setSenha] = useState("");
   const [mensagem, setMensagem] = useState("");
-  const [mostrarSenha, setMostrarSenha] = useState(false); // Estado para o olhinho
+  const [mostrarSenha, setMostrarSenha] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMensagem("");
 
-    // Exemplo de como deve ficar dentro do seu Login.jsx
     try {
       const data = await request("/api/auth/login", {
         method: "POST",
         body: JSON.stringify({ nome, senha }),
       });
 
-      // O SEGREDO ESTÁ AQUI: Salvar no navegador com o nome "token"
       if (data.token) {
-        localStorage.setItem("token", data.token); // Salva o crachá
-        localStorage.setItem("usuario", JSON.stringify(data.usuario)); // Salva os dados do Lima (incluindo a role admin)
+        // --- A MUDANÇA É AQUI ---
+        // Chamamos a função login do contexto para atualizar o nome no Header na hora!
+        login(data.usuario);
 
-        navigate("/dashboard"); // Redireciona para o sistema
+        // Também salvamos o token para o useApi usar
+        localStorage.setItem("token", data.token);
+
+        navigate("/dashboard");
       }
     } catch (err) {
       setMensagem("Erro ao entrar: " + err.message);
@@ -45,7 +47,6 @@ function Login() {
 
       <form
         onSubmit={handleSubmit}
-        /* Ajustado padding para mobile (px-6) e desktop (px-8) */
         className="bg-white shadow-md rounded px-6 md:px-8 pt-6 pb-8 w-full max-w-sm"
       >
         <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
@@ -62,13 +63,11 @@ function Login() {
             placeholder="Nome"
             value={nome}
             onChange={(e) => setNome(e.target.value)}
-            /* Aumentado padding (p-3) para facilitar toque no celular */
             className="w-full border p-3 md:p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none transition-all"
             required
           />
         </div>
 
-        {/* Container relativo para posicionar o botão do olho */}
         <div className="mb-6 relative">
           <input
             type={mostrarSenha ? "text" : "password"}
@@ -99,20 +98,13 @@ function Login() {
         <div className="mt-6 text-center text-sm space-y-2">
           <p>
             Não tem conta?{" "}
-            <a
-              href="/signup"
+            <button
+              type="button"
+              onClick={() => navigate("/signup")}
               className="text-blue-600 font-medium hover:underline"
             >
               Cadastre-se
-            </a>
-          </p>
-          <p>
-            <a
-              href="/recuperar"
-              className="text-blue-600 font-medium hover:underline"
-            >
-              Esqueceu a senha?
-            </a>
+            </button>
           </p>
         </div>
       </form>
