@@ -9,10 +9,6 @@ const lancamentosRoutes = require("./routes/lancamentos");
 const authRoutes = require("./routes/auth");
 
 const app = express();
-// Ajuste no server.js
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
-
-// Lista de origens permitidas
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -55,10 +51,6 @@ mongoose
   })
   .then(() => console.log("✅ MongoDB conectado"))
   .catch((err) => console.error("❌ Erro MongoDB:", err));
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
-});
 
 // Porta do servidor
 const PORT = process.env.PORT || 5000;

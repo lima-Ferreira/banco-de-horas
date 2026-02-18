@@ -12,7 +12,7 @@ router.post("/register", async (req, res) => {
     if (usuarioExistente)
       return res.status(400).json({ message: "Email já cadastrado" });
 
-    const ehAdmin = codigoAdmin === "LIMA2025";
+    const ehAdmin = codigoAdmin === "123";
 
     const novoUsuario = new Usuario({
       nome,
@@ -41,7 +41,7 @@ router.post("/login", async (req, res) => {
     // SEGREDO NOVO: LIMA2025
     const token = jwt.sign(
       { id: usuario._id, role: usuario.role || "user" },
-      "LIMA2025",
+      "123",
       { expiresIn: "1d" },
     );
 

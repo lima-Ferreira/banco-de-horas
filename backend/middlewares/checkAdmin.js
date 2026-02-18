@@ -13,7 +13,7 @@ const checkAdmin = (req, res, next) => {
     const token = authHeader.replace(/Bearer\s+/i, "").trim();
 
     // 3. Valida com o segredo
-    const verificado = jwt.verify(token, "LIMA2025");
+    const verificado = jwt.verify(token, "123");
 
     if (verificado.role !== "admin") {
       return res
