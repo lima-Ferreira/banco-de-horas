@@ -12,7 +12,7 @@ router.post("/register", async (req, res) => {
     if (usuarioExistente)
       return res.status(400).json({ message: "Email já cadastrado" });
 
-    const ehAdmin = codigoAdmin === "LIMA_ADMIN_2024";
+    const ehAdmin = codigoAdmin === "LIMA2025";
 
     const novoUsuario = new Usuario({
       nome,
