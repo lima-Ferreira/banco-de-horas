@@ -10,9 +10,7 @@ const authRoutes = require("./routes/auth");
 
 const app = express();
 // Ajuste no server.js
-app.use(
-  express.static(path.join(__dirname, "../banco-de-horas-frontend/dist")),
-);
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
 // Lista de origens permitidas
 
@@ -59,9 +57,7 @@ mongoose
   .catch((err) => console.error("❌ Erro MongoDB:", err));
 
 app.get("*", (req, res) => {
-  res.sendFile(
-    path.join(__dirname, "../banco-de-horas-frontend/dist", "index.html"),
-  );
+  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
 });
 
 // Porta do servidor
