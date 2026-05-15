@@ -55,6 +55,30 @@ function Funcionarios() {
     }
   };
 
+  const inativarFuncionario = async (id) => {
+  const confirmar = window.confirm(
+    "Deseja realmente inativar este funcionário?"
+  );
+
+  if (!confirmar) return;
+
+  try {
+    await request(`/api/funcionarios/${id}/inativar`, {
+      method: "PATCH",
+    });
+
+    setMensagem("Funcionário inativado com sucesso!");
+
+    carregarFuncionarios();
+  } catch (err) {
+    console.error("Erro ao inativar funcionário:", err);
+
+    setMensagem(
+      err.message || "Erro ao inativar funcionário"
+    );
+  }
+};
+
   return (
     <div className="max-w-2xl mx-auto bg-white p-6 rounded shadow">
       {loading && (
@@ -151,18 +175,29 @@ function Funcionarios() {
                 </li>
               ) : (
                 funcionarios.map((f) => (
-                  <li
-                    key={f._id}
-                    className="border p-3 rounded bg-white shadow-sm flex justify-between items-center"
-                  >
-                    <div>
-                      <p className="font-bold text-slate-800">{f.nome}</p>
-                      <p className="text-xs text-gray-500">
-                        {f.cargo || "Sem cargo"} | {f.setor || "Sem setor"} |{" "}
-                        {f.loja}
-                      </p>
-                    </div>
-                  </li>
+               <li
+  key={f._id}
+  className="border p-3 rounded bg-white shadow-sm flex justify-between items-center"
+>
+  <div>
+    <p className="font-bold text-slate-800">{f.nome}</p>
+
+    <p className="text-xs text-gray-500">
+      {f.cargo || "Sem cargo"} | {f.setor || "Sem setor"} |{" "}
+      {f.loja}
+    </p>
+  </div>
+
+  {/* BOTÃO SÓ PARA ADMIN */}
+  {isAdmin && (
+    <button
+      onClick={() => inativarFuncionario(f._id)}
+      className="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded transition-all"
+    >
+      Inativar
+    </button>
+  )}
+</li>
                 ))
               )}
             </ul>
