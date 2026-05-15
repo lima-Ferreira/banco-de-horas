@@ -11,9 +11,11 @@ function Funcionarios() {
 
   const [mensagem, setMensagem] = useState("");
   const [funcionarios, setFuncionarios] = useState([]);
-  const [mostrarLista, setMostrarLista] = useState(false);
 
-  // DADOS DO USUÁRIO
+  // LISTA JÁ COMEÇA ABERTA
+  const [mostrarLista, setMostrarLista] = useState(true);
+
+  // USUÁRIO LOGADO
   const dadosUsuario = JSON.parse(
     localStorage.getItem("usuario")
   );
@@ -22,12 +24,7 @@ function Funcionarios() {
 
   useEffect(() => {
     carregarFuncionarios();
-
-    // Usuário comum já vê a lista aberta
-    if (!isAdmin) {
-      setMostrarLista(true);
-    }
-  }, [isAdmin]);
+  }, []);
 
   // CARREGAR FUNCIONÁRIOS
   const carregarFuncionarios = async () => {
@@ -242,7 +239,7 @@ function Funcionarios() {
 
       {/* LISTA */}
       {mostrarLista && (
-        <div className={isAdmin ? "mt-4" : ""}>
+        <div className="mt-4">
           <h3 className="text-lg font-semibold mb-3 text-slate-700">
             Base de Funcionários (
             {funcionarios.length})
@@ -258,15 +255,15 @@ function Funcionarios() {
                 funcionarios.map((f) => (
                   <li
                     key={f._id}
-                    className="border p-3 rounded bg-white shadow-sm flex justify-between items-center gap-4"
+                    className="border p-3 rounded bg-white shadow-sm flex items-center gap-4"
                   >
                     {/* DADOS */}
-                    <div>
-                      <p className="font-bold text-slate-800">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-slate-800 break-words">
                         {f.nome}
                       </p>
 
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 break-words">
                         {f.cargo ||
                           "Sem cargo"}{" "}
                         |{" "}
@@ -284,7 +281,7 @@ function Funcionarios() {
                             f._id
                           )
                         }
-                        className="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded transition-all"
+                        className="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded transition-all shrink-0"
                       >
                         Inativar
                       </button>
