@@ -174,32 +174,32 @@ function Funcionarios() {
                   Nenhum funcionário encontrado.
                 </li>
               ) : (
-                funcionarios.map((f) => (
-               <li
-  key={f._id}
-  className="border p-3 rounded bg-white shadow-sm flex justify-between items-center"
->
-  <div>
-    <p className="font-bold text-slate-800">{f.nome}</p>
+          {funcionarios.map((f) => (
+  <li
+    key={f._id}
+    className="border p-3 rounded bg-white shadow-sm flex justify-between items-center"
+  >
+    <div>
+      <p className="font-bold text-slate-800">
+        {f.nome}
+      </p>
 
-    <p className="text-xs text-gray-500">
-      {f.cargo || "Sem cargo"} | {f.setor || "Sem setor"} |{" "}
-      {f.loja}
-    </p>
-  </div>
+      <p className="text-xs text-gray-500">
+        {f.cargo || "Sem cargo"} |{" "}
+        {f.setor || "Sem setor"} | {f.loja}
+      </p>
+    </div>
 
-  {/* BOTÃO SÓ PARA ADMIN */}
-  {isAdmin && (
-    <button
-      onClick={() => inativarFuncionario(f._id)}
-      className="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded transition-all"
-    >
-      Inativar
-    </button>
-  )}
-</li>
-                ))
-              )}
+    {isAdmin && (
+      <button
+        onClick={() => inativarFuncionario(f._id)}
+        className="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded"
+      >
+        Inativar
+      </button>
+    )}
+  </li>
+))}
             </ul>
           </div>
         </div>
