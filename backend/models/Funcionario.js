@@ -17,6 +17,10 @@ const funcionarioSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  ativo: {
+  type: Boolean,
+  default: true
+}
 });
 
 module.exports = mongoose.model("Funcionario", funcionarioSchema);
