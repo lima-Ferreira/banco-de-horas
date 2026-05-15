@@ -6,10 +6,7 @@ const checkAdmin = require("../middlewares/checkAdmin"); // 1. Importa o seguran
 // Rota para buscar: QUALQUER UM logado pode ver
 router.get("/", async (req, res) => {
   try {
-const funcionarios = await Funcionario.updateMany(
-  { ativo: { $exists: false } },
-  { $set: { ativo: true } }
-);
+const funcionarios = await Funcionario.find({ ativo: true })
     res.json(funcionarios);
   } catch (err) {
     res.status(500).json({ error: "Erro ao buscar funcionários" });
